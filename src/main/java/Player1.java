@@ -5,10 +5,11 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.awt.Color;
 
 public class Player1 extends Player {
 
-    public Player1(String color) {
+    public Player1(Color color) {
         playerNum = 1;
         this.color = color;
     }
@@ -26,7 +27,7 @@ public class Player1 extends Player {
             System.out.println("Player 1, please select your column:");
             int c = Integer.parseInt(br.readLine());
             
-            if (game.isLegalMove(game.board, c)) {
+            if (game.board.isLegalMove(c)) {
                 finalCol = c;
                 isLegal = true;
                
