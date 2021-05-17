@@ -1,4 +1,10 @@
 
+// first brute force --> alpha beta pruning
+// heuristic (average win rate per tree)
+
+
+// monte carlo
+
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import javax.swing.JComponent;
@@ -67,6 +73,8 @@ public class Display extends JComponent {
     private final JButton runButton = new JButton();
     private final JButton avgButton = new JButton();
     private final JLabel avgLabel = new JLabel();
+    private final JLabel winLabel = new JLabel();
+    
 
     private final JLabel stepsLabel = new JLabel();
 
@@ -76,7 +84,7 @@ public class Display extends JComponent {
     private final int CELL_SIDE_PIXELS;
 
 
-    private final static Color COLOR_EMPTY = Color.CYAN;
+    private final static Color COLOR_EMPTY = Color.BLUE;
     private final static Color COLOR_GRID = Color.WHITE;
 
     // Graphics locations
@@ -89,6 +97,7 @@ public class Display extends JComponent {
     private final static Rectangle RUN_RECT = new Rectangle(130, 550, 50, 40);
     private final static Rectangle AVG_RECT = new Rectangle(210, 550, 100, 40);
     private final static Rectangle AVG_LABEL_RECT = new Rectangle(320, 550, 40, 40);
+    private final static Rectangle WIN_LABEL_RECT = new Rectangle(200, 500, 200, 40);
     private final static Rectangle STEPS_RECT = new Rectangle(500, 550, 40, 40);
 
     private Game game;
@@ -109,6 +118,10 @@ public class Display extends JComponent {
     }
 
     private void init() {
+        
+        game = new Game(game.ROWS, game.COLS, game.CONNECT, game.human, game.computer);
+        
+        makeButtonsVisible(true);
 
     }
 
@@ -116,7 +129,7 @@ public class Display extends JComponent {
         Graphics2D g2 = (Graphics2D) g;
 
         drawCells(g2);
-        drawGrid(g2);
+        // drawGrid(g2);
         drawButtons();
         
         if (loopMode) {
@@ -126,9 +139,8 @@ public class Display extends JComponent {
                 e.printStackTrace();
             }
             try {
-                game.play(loopMode);
-                    System.out.println(" Player " + game.currentPlayer.playerNum + "won the game!!");
-                
+                if (game.play(loopMode)) displayWin();
+                    
             } catch (IOException ex) {
                 Logger.getLogger(Display.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -176,16 +188,20 @@ public class Display extends JComponent {
                 Color c = COLOR_EMPTY;
                 g2.setColor(c);
                 g2.fillRect(xleft, ytop, CELL_SIDE_PIXELS, CELL_SIDE_PIXELS);
+                
+                g2.setColor(Color.WHITE);
+                Ellipse2D.Double ecircle = new Ellipse2D.Double(xleft, ytop, CELL_SIDE_PIXELS - 5, CELL_SIDE_PIXELS - 5);
+                g2.fill(ecircle);
 
                 Color cs = null;
-                if (game.sayColor1(ii, jj))
-                    cs = Color.BLUE;
-                else if (game.sayColor2(ii, jj))
+                if (game.board.sayColor1(ii, jj))
+                    cs = Color.RED;
+                else if (game.board.sayColor2(ii, jj))
                     cs = Color.YELLOW;
                 
                     
                 g2.setColor(cs);
-                Ellipse2D.Double circle = new Ellipse2D.Double(xleft, ytop, CELL_SIDE_PIXELS, CELL_SIDE_PIXELS);
+                Ellipse2D.Double circle = new Ellipse2D.Double(xleft, ytop, CELL_SIDE_PIXELS - 5, CELL_SIDE_PIXELS - 5);
                 g2.fill(circle);
 
                 }
@@ -231,7 +247,11 @@ public class Display extends JComponent {
             public void actionPerformed(ActionEvent e) {
                 loopMode = false;
                 try {
-                    game.play(loopMode);
+                    if (game.play(loopMode)) {
+                        displayWin();
+                    }
+                        
+                            
                 } catch (IOException ex) {
                     Logger.getLogger(Display.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -294,6 +314,29 @@ public class Display extends JComponent {
         stepsLabel.setVisible(true);
         add(stepsLabel);
 
+    }
+    
+    private void makeButtonsVisible(boolean val) {
+        stepButton.setVisible(val);
+        runButton.setVisible(val);
+        runButton.setVisible(val);
+        
+        winLabel.setVisible(!val);
+    }
+    
+    private void displayWin() {
+        
+        
+        makeButtonsVisible(false);
+        
+        winLabel.setBounds(WIN_LABEL_RECT);
+        winLabel.setText("Player " + game.currentPlayer.playerNum  + " has won the game!!!");
+        winLabel.setForeground(game.currentPlayer.color);
+
+        add(winLabel);
+        
+        System.out.println("Player " + game.currentPlayer.playerNum  + " has won the game!!!");
+        
     }
 
 }
